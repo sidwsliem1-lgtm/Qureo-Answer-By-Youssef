@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Qureo-By Youssef</title>
+    <style>
+        :root {
+            --bg-main: #0b0e16;
+            --bg-card: rgba(20, 25, 40, 0.7);
+            --border-card: rgba(255, 255, 255, 0.05);
+            --text-main: #f0f3f8;
+            --text-sub: #8f9bb5;
+            --accent-red: #e53e3e;
+            --accent-yellow: #fbbf24;
+            --accent-green: #48bb78;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Cairo', 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-main) 0%, #141a24 100%);
+            color: var(--text-main);
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .levels-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            gap: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border-card);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header-titles h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(120deg, #FFB347, #FF6B6B);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-titles .sub {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        .progress-wrapper {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-stats {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #cbd5ff;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #1e2538;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-yellow), var(--accent-green));
+            border-radius: 10px;
+            transition: width 0.5s ease-out;
+        }
+
+        .reset-btn {
+            background: #2d3748;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #ffe1b3;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reset-btn:hover {
+            background: var(--accent-red);
+            color: white;
+            border-color: var(--accent-red);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(229, 62, 62, 0.3);
+        }
+
+        .reset-btn:active {
+            transform: scale(0.95);
+        }
+
+        .level-card {
+            border-radius: 1.2rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            transition: var(--transition-smooth);
+            border: 1px solid var(--border-card);
+            overflow: hidden;
+            will-change: transform, box-shadow;
+        }
+
+        .level-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .level-card.state-red { border-right: 5px solid var(--accent-red); }
+        .level-card.state-yellow {
+            background: linear-gradient(110deg, rgba(58, 42, 26, 0.8), rgba(42, 32, 24, 0.8));
+            border-right: 5px solid var(--accent-yellow);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+            border-color: rgba(251, 191, 36, 0.2);
+        }
+        .level-card.state-green { border-right: 5px solid var(--accent-green); }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .level-header:hover { background: rgba(255, 255, 255, 0.03); }
+
+        .level-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .level-num {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #ffecb3;
+            letter-spacing: 0.5px;
+        }
+
+        .level-badge {
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            color: #bfc9f0;
+            font-weight: 500;
+        }
+
+        .level-arrow {
+            font-size: 1rem;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-sub);
+        }
+
+        .level-card.is-open .level-arrow {
+            transform: rotate(180deg);
+            color: var(--accent-yellow);
+        }
+
+        .answers-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .level-card.is-open .answers-wrapper { grid-template-rows: 1fr; }
+
+        .answers-inner { overflow: hidden; }
+
+        .answers-container {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.03);
+            margin-top: 0.5rem;
+            padding-top: 1.5rem;
+        }
+
+        .answer-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 1rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: var(--transition-smooth);
+        }
+
+        .answer-item:hover {
+            border-color: rgba(255, 180, 100, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .answer-code {
+            flex: 1;
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .copy-btn:hover {
+            background: linear-gradient(135deg, var(--accent-green), #38a169);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .copy-btn:active { transform: scale(0.92); }
+
+        .toast-msg {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(31, 42, 31, 0.9);
+            color: #ccffcc;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            font-weight: 600;
+            border: 1px solid rgba(72, 187, 120, 0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .toast-msg.show { bottom: 30px; }
+
+        /* Welcome Popup Styles */
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            will-change: opacity;
+        }
+
+        .welcome-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .popup-card {
+            background: linear-gradient(145deg, rgba(25, 30, 45, 0.95), rgba(15, 20, 35, 0.98));
+            backdrop-filter: blur(18px);
+            border-radius: 2.5rem;
+            padding: 2rem 1.8rem;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 150, 0.4);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 200, 100, 0.2) inset;
+            transition: transform 0.4s ease-out;
+            transform: scale(1);
+        }
+
+        .welcome-overlay.fade-out .popup-card {
+            transform: scale(0.96);
+        }
+
+        .avatar-glow {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 1.5rem auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffb347, #ff6b6b);
+            padding: 4px;
+            box-shadow: 0 0 20px rgba(255, 180, 70, 0.6), 0 0 35px rgba(255, 100, 80, 0.3);
+            animation: floatImage 3.5s ease-in-out infinite, glowPulse 2.2s infinite alternate;
+        }
+
+        .avatar-glow img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            background: #1e1e2a;
+        }
+
+        @keyframes floatImage {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 12px rgba(255, 180, 70, 0.5), 0 0 20px rgba(255, 100, 80, 0.2); }
+            100% { box-shadow: 0 0 28px rgba(255, 200, 100, 0.9), 0 0 40px rgba(255, 120, 80, 0.5); }
+        }
+
+        .popup-card h2 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(120deg, #FFD966, #FFA559);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin: 0.5rem 0 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        .popup-phone {
+            font-size: 1.35rem;
+            font-weight: 600;
+            background: rgba(255, 215, 150, 0.2);
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            color: #FFE4B5;
+            border: 1px solid rgba(255, 200, 100, 0.5);
+            margin: 1rem 0 0.5rem;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .popup-desc {
+            font-size: 0.9rem;
+            color: #b9c7dd;
+            margin-top: 1rem;
+            border-top: 1px dashed rgba(255, 200, 100, 0.3);
+            padding-top: 1rem;
+        }
+
+        .close-hint {
+            font-size: 0.7rem;
+            color: #8f9bb5;
+            margin-top: 0.8rem;
+            cursor: default;
+        }
+
+        @media (max-width: 500px) {
+            .popup-card { padding: 1.5rem; }
+            .avatar-glow { width: 110px; height: 110px; }
+            .popup-card h2 { font-size: 1.5rem; }
+            .answer-item { flex-direction: column; align-items: stretch; }
+            .copy-btn { align-self: flex-end; width: 100%; justify-content: center; }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="levels-container">
+    <div class="header-actions">
+        <div class="header-titles">
+            <h1>𝒀𝒐𝒖𝒔𝒔𝒆𝒇 𝒔𝒂𝒍𝒊𝒎</h1>
+            <div class="sub">الألوان: 🔴 مغلق &nbsp;|&nbsp; 🟡 الحالي &nbsp;|&nbsp; 🟢 مكتمل</div>
+        </div>
+        
+        <div class="progress-wrapper">
+            <div class="progress-header">
+                <span class="progress-stats" id="progressStats">التقدم: 0 / 42</span>
+                <button class="reset-btn" id="resetProgressBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    إعادة ضبط
+                </button>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="levelsRender"></div>
+    
+    <footer>✨ Contact Us on ("01271161168") 𝒀𝒐𝒖𝒔𝒔𝒆𝒇 𝒔𝒂𝒍𝒊𝒎</footer>
+</div>
+
+<div class="toast-msg" id="toastMsg">تم النسخ بنجاح!</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 1. Data Base (كامل كما هو)
+    // --------------------------------------------------------------
+    const levelsData = {
+        1: ["console.log(\"Hello\");","console.log(\"Good morning\");","console.log(\"Programming\");","console.log(\"Hello\");","//Write your comments here.","console.log(\"Hello.\");\nconsole.log(\"My name is\");\n//console.log(\"Rick.\");\nconsole.log(\"Cody.\");"],
+        2: ["console.log(50 + 100);","/","console.log(19 + 40);","console.log(7 - 2);","console.log(15 / 5);","console.log(\"Today is the 17th.7 days ago was the \" + (17 - 7) + \"th.\");","console.log(\"The answer is \" + (2 * 5) + \".\");"],
+        3: ["let score;","console.log(score);","let number;","let number;\nnumber = 100;","let number;\nnumber = 10;\nconsole.log(number);","let number;\nnumber = 3;\nnumber = number + 10;\nconsole.log(number);"],
+        4: ["console.log(\"Hello\");","console.log(\"Hello\");","//Leave this text.\nconsole.log(\"Make the first line a comment.\");","console.log(5 + 7);","*","console.log(\"The answer is \" + (3 * 5) + \".\");","let number;","let num;\nnum = 5;\nconsole.log(num);"],
+        5: ["let num = 5;\nconsole.log(num);","if (conditional){processing}","num == 50","let num = 100;\nif (num == 100){console.log(\"Correct\");}","False"],
+        6: ["if (conditional){A}\nelse{B}","let num = 5;\nif (num == 10){console.log(\"Win\");}\nelse {console.log(\"Lose\");}","num <= 80","num > 30","score >= 60"],
+        7: ["if (conditional){A}\nelse if (conditional){B}","let num = 2;\nif (num == 1){console.log(\"One\");}\nelse if (num == 2){console.log(\"Two\");}","let score = 82;\nif (score == 100){console.log(\"Perfect score\");}\nelse if(score >= 80){console.log(\"Pass\");}","Pass","let egg = 5;\nif (egg == 0){console.log(\"No stock\");}\nelse if (egg <= 3){console.log(\"Low stock\");}\nelse{console.log(\"In stock\");}"],
+        8: ["let num = 7;\nif (num == 7){console.log(\"Correct\");}","True","score >= 60","num < 20","let num = 100;\nif (num == 100){console.log(\"correct\");}\nelse {console.log(\"miss\");}","So close","num <= 3\nnum >= 6\nelse"],
+        9: ["A && B","A || B","السعر العادي","a == 5 || b == 10","a >= 2 && b >=3"],
+        10: ["for","i++","for (let i=0; i<10; i++) {\n　Specified process\n}","for (let i=0 ; i < 5 ; i++) {\n console.log(\"Hello\");\n}","for (let i=0 ; i < 7 ; i++) {\n console.log(\"Hello\");\n}"],
+        11: ["A || B","A","i++","for (let i=0; i<10; i++) {\n　Process\n}","Hello\nHello","for (let i=0 ; i < 10 ; i++) {\n console.log(\"Good morning\");\n}","a >= 2 && b >=3","\ for\     \let i=0 ; i < 3 ; i++"],
+        12: ["function calc(num) {\n　　processing\n}","Math.round(1.8)","60","15","calc(3)","return result;"],
+        13: ["console.log(Math.random());","console.log(Math.floor(10.5));","7","console.log(Math.round(5.5));\nconsole.log(Math.floor(8.8));","Math.random() >= 0.5","console.log(Math.floor(Math.random() * 10));"],
+        14: ["Math.round(1.8)","100","console.log(Math.random());","12","Math.floor(Math.random() * 10)","function sum(num) {\n　　processing\n}","return result;","calc(7)"],
+        15: ["String","console.log(typeof \"1\");","False","NaN","console.log(typeof \"7\");"],
+        16: ["let num = [5, 10, 15];","15","num","6","num.length"],
+        17: ["String","console.log(typeof \"50\");","False","NaN","console.log(typeof 100);","let num = [10, 50, 100 ,150];","20","num","12","let num = [2, 4, 6, 8, 10];\nconsole.log(num.length);"],
+        18: ["<h1>Hello</h1>","<p>Hello</p>","br tag","ul tag","1.Cut ingredients\n2.Stir-fry\n3.Add seasonings","<img src=\"image.png\">","<img alt=\"This is an image.\">","\<!--\     \-->"],
+        19: ["h1 {\n  color: red;\n}","h1 {\n  color:blue;\n}","تغيير لون النص","تغيير لون الخلفية","يصبح النص عريضًا","font-size: 10px;",".dog {\n  color: blue;\n}","\/*\     \*/"],
+        20: ["<p>Good morning</p>","br tag","<img src=\"image.png\">","・strawberry\n・cherry\n・orange","h1 {\n  color: yellow;\n}","تغيير لون الخلفية","يصبح الخط عريضًا","h3 {\n  color: red;\n}",".fish {\n  color: blue;\n}"],
+        21: ["score == 50","else if (A < B )","A < B","score >= 50","&&","||","numberOfPeople <= 10 || weight <= 800","ينتج عنه خطأ","let math = 100;\nlet science = 100;\nif (math == 100) {\n  console.log(\"Math is 100 points\");\n  if (science == 100) {\n    console.log(\"Math and science are 100 points\");\n  }\n}"],
+        22: ["for","i++","for (let i = 0; i < 10; i++) {\n  specified process;\n}","let i = 0; i < 3; i++","for (let i=0 ; i < 7 ; i++){\n console.log(\"Good morning\");\n}","يؤدي إلى خطأ","for (let i = 0; i < 5; i++) {\n    console.log(\"sit-ups\");\n    if (i == 4) {\n        console.log(\"End\");\n    }\n}","AABA","i += 2"],
+        23: ["function move() {\n  Program to Run\n}","55","30","function divide5(total) {\n    let num = total / 5;\n    return num;\n}\nconsole.log(divide5(35));","ينتج عنه خطأ","function goodNight() {\n  let greeting = \"Good night!\";\n  return greeting;\n}\nconsole.log(goodNight());","console.log(mul(9, 7));"],
+        24: ["let A = 5\nlet B = 10\nif (A > B) {\n  console.log(\"A is larger\");\n} else if (A < B) {\n  console.log(\"B is larger\");\n}","&&","let science = 100;\nlet math = 100;\nif (science == 100) {\n  console.log(\"Science is 100 points\");\n  if (math == 100) {\n    console.log(\"Science and Math are 100 points\");\n  }\n}","for (let i=0 ; i < 7 ; i++){\n console.log(\"Good morning\");\n}","ينتج عنه خطأ","00010","i += 5","function divide3(num) {\n    let result = num / 3;\n    return result;\n}\nconsole.log(divide3(12345));","function move() {\n  Program to Run\n}","function mul(num1, num2) {\n    let result = num1 * num2;\n    return result;\n}\nconsole.log(mul(9, 7));"],
+        25: ["8","let num = 1;\nfor(let i = 0; i < 5; i++){\n  num = num * 7;\n}\nconsole.log(num);","1→2→3→4→5→6→7","let num = 0;\nfor (let i = 0; i < 6; i++) {\n  num = num + i;\n}\nconsole.log(num);","let num = 5040;\nfor(let i = 1; i <= 5; i++){\n  num = num / i;\n}\nconsole.log(num);"],
+        26: ["79","let scoreList = [52, 60, 79, 82, 66, 59, 88];\nconsole.log(scoreList[5]);","let scoreList = [52, 60, 79, 82, 66, 59, 88];\nlet sum = 0;\nfor(let i = 0; i < 7; i++){\n  sum = sum + scoreList[i];\n}\nconsole.log(sum / 7);","let scoreList = [52, 60, 79, 82, 66, 59, 88];\nconsole.log(scoreList.length);","let scoreList = [52, 60, 79, 82, 66, 59, 88];\nfor (let i = 0; i < scoreList.length; i++) {\n  if (scoreList[i] >= 80) {\n    console.log(\"80 points or higher\");\n  }\n}"],
+        27: ["let num = 1;\nfor (let i = 0; i < 3; i++) {\n  num = num * 9;\n}\nconsole.log(num);","1→2→3→4","let num = 5040;\nfor (let i = 1; i <= 5; i++) {\n  num = num / i;\n}\nconsole.log(num);","scoreList[4]","scoreList.length","let scoreList = [52, 90, 70, 83, 63, 72, 89];\nfor (let i = 0; i < scoreList.length; i++) {\n  if (scoreList[i] >= 80) {\n    console.log(\"Pass\");\n  }\n}"],
+        28: ["11","10\n11\n12","5\n6\n7","let numList = [2, 4, 6, 8];\nfor (let num of numList) {\n  console.log(num);\n}","let wordList = [\"Good morning\", \"Good night\", \"Hello\"];\nfor (let word of wordList) {\n  console.log(word);\n}"],
+        29: ["let A = 5;\nlet B = 10;\nif (A > B) {\n  console.log(\"A is bigger\");\n} else if (A < B) {\n  console.log(\"B is bigger\");\n}","100","Destination is the amusement park","let weather = \"sunny\";\nlet shop = \"OPEN\";\n\nif (weather == \"sunny\") {\n  if (shop == \"OPEN\") {\n    console.log(\"Go to the shop\");\n  }\n} else {\n  console.log(\"Staying at home\");\n}","let weather = \"rain\";\nlet time = \"morning\";\n\nif (weather == \"rain\") {\n  if (time == \"morning\") {\n    console.log(\"Let's go to the movie theater\");\n  } else if (time == \"noon\") {\n    console.log(\"Let's go to the library\");\n  } else {\n    console.log(\"Let's stay at home\");\n  }\n} else {\n  console.log(\"Let's go for a walk\");\n}"],
+        30: ["5\n6\n7","let numList = [2, 4, 6, 8];\nfor (let num of numList) {\n  console.log(num);\n}","let wordList = [\"Good morning\", \"Good night\", \"Hello\"];\nfor (let word of wordList) {\n  console.log(word);\n}","100","Destination is the amusement park","let weather = \"rain\";\nlet time = \"morning\";\n\nif (weather == \"rain\") {\n  if (time == \"morning\") {\n    console.log(\"Let's go to the movie theater\");\n  } else if (time == \"noon\") {\n    console.log(\"Let's go to the library\");\n  } else {\n    console.log(\"Let's stay at home\");\n  }\n} else {\n  console.log(\"Let's go for a walk\");\n}"],
+        31: ["function calculation3(a, b, c){\n  let result = a * b * c;\n  return result;\n}\nconsole.log(calculation3(2, 3, 4));","console.log(calculation3(3, 5, 10));","function calculation3(a, b, c) {\n  let result = a * b * c;\n  return result;\n}\nlet num1 = calculation3(5, 10, 15);\nconsole.log(num1);","function calculation3(a, b, c) {\n  let result = a * b * c;\n  return result;\n}\nlet num1 = calculation3(5, 10, 15);\nconsole.log(num1);\nlet num2 = calculation3(4, 4, 4);\nconsole.log(num2);","console.log(Math.min(num1, num2, num3));"],
+        32: ["let score of scoreList","80 88 92","let heightList = [154, 138, 140, 180, 170];\n\nfor (let height of heightList) {\n  if (height >= 150) {\n    console.log(height);\n  }\n}","إذا كان طولك 140 سم أو أكثر، يمكنك الركوب بمفردك.","let height = 148;\nlet age = 14;\n\nif (height >= 140) {\n  if (age >= 12) {\n    console.log(\"You can ride alone\");\n  } else {\n    console.log(\"Please ride with someone who is 18 years or older\");\n  }\n} else {\n  console.log(\"You cannot ride\");\n}"],
+        33: ["console.log(calc3(3, 5, 10));","function calc3(a, b, c) {\n  let result = a * b * c;\n  return result;\n}\nlet num1 = calc3(5, 10, 15);\nconsole.log(num1);","function calc3(a, b, c) {\n  let result = a * b * c;\n  return result;\n}\nlet num1 = calc3(5, 10, 15);\nconsole.log(num1);\nlet num2 = calc3(4, 4, 4);\nconsole.log(num2);","console.log(Math.min(num1, num2, num3));","80 88 92","let heightList = [154, 138, 140, 180, 170];\n\nfor (let height of heightList) {\n  if (height >= 150) {\n    console.log(height);\n  }\n}","إذا كان عمرك 12 سنة أو أكثر وكان طولك 140 سم أو أكثر، يمكنك الركوب بمفردك."],
+        34: ["<p>Menu</p>\n<ul>\n    <li>Hamburger</li>\n    <li>Pizza</li>\n    <li>Sandwich</li>\n</ul>","<img src=\"cody.png\">","يتم عرض النص \"Tomato\" باللون الأحمر","<p>Phone Number</p>\n<input type=\"text\">\n<input type=\"button\" value=\"Enter\">","<input type=\"button\" value=\"Submit\">"],
+        35: ["<p class=\"cat\">CAT</p>",".btn:hover {\n    background-color: red;\n}",".btn:hover {\n  background-color: red;\n  transition: 5s;\n}","double","h1 {\n  border: 10px solid blue;\n}"],
+        36: ["<p>Menu</p>\n<ul>\n    <li>Hamburger</li>\n    <li>Pizza</li>\n    <li>Sandwich</li>\n</ul>","يتم عرض النص \"Tomato\" باللون الأحمر","<p>Phone Number</p>\n<input type=\"text\">\n<input type=\"button\" value=\"Enter\">","<input type=\"button\" value=\"Submit\">",".btn:hover {\n    background-color: red;\n}",".btn:hover {\n  background-color: red;\n  transition: 5s;\n}","double","h1 {\n  border: 10px solid blue;\n}"],
+        37: ["let color = \"green\";\n\nif (color == \"red\") {\n  console.log(\"Red\");\n} else if (color == \"blue\") {\n  console.log(\"Blue\");\n} else if (color == \"green\") {\n  console.log(\"Green\");\n}","عندما لا تتطابق القيمة مع أيٍّ من الحالات (cases)","500~1500","let letter = \"B\";\n\nswitch (letter) {\n  case \"A\":\n    console.log(\"Well done!\");\n    break;\n  case \"B\":\n    console.log(\"Keep up the good work\");\n    break;\n  case \"C\":\n    console.log(\"Let's try a little harder\");\n    break;\n}","let letter = \"D\";\n\nswitch (letter) {\n  case \"A\":\n    console.log(\"Well done!\");\n    break;\n  case \"B\":\n    console.log(\"Keep up the good work\");\n    break;\n  case \"C\":\n    console.log(\"Let's try a little harder\");\n    break;\n  default:\n    console.log(\"The notation is incorrect\");\n    break;\n}"],
+        38: ["1","year % 12 == 0","let dayCount = 14;\n\nif (dayCount % 7 == 0) {\n  console.log(\"Let's eat a hamburger!\");\n}","let dayCount = 11;\n\nswitch (dayCount % 7) {\n  case 0:\n    console.log(\"Let's eat a hamburger!\");\n    break;\n  case 4:\n    console.log(\"Let's eat steak!\");\n    break;\n}","let number = 20;\n\nswitch (number % 3) {\n  case 0:\n    console.log(\"Group A\");\n    break;\n  case 1:\n    console.log(\"Group B\");\n    break;\n  case 2:\n    console.log(\"Group C\");\n    break;\n}"],
+        39: ["عندما لا تتطابق القيمة مع أي من الحالات","500~1500","let letter = \"B\";\n\nswitch (letter) {\n  case \"A\":\n    console.log(\"Well done!\");\n    break;\n  case \"B\":\n    console.log(\"Keep up the good work\");\n    break;\n  case \"C\":\n    console.log(\"Let's try a little harder\");\n    break;\n}","1","let dayCount = 14;\n\nif (dayCount % 7 == 0) {\n  console.log(\"Let's eat a hamburger!\");\n}","let number = 20;\n\nswitch (number % 3) {\n  case 0:\n    console.log(\"Group A\");\n    break;\n  case 1:\n    console.log(\"Group B\");\n    break;\n  case 2:\n    console.log(\"Group C\");\n    break;\n}"],
+        40: ["const num;","let","let num;\nnum = 3;\nnum = 5;\nconsole.log(num);","a != 100","const answer1 = 1023;\nconst answer2 = 1024;\n\nif (answer1 != answer2) {\n  console.log(\"Let's review once more!\");\n}"],
+        41: ["for (let i = 0; i < 3; i++) {\n  console.log(\"Programming\");\n}","while ( condition ) {\n  process;\n}","0\n1\n2","let money = 1000;\nconst snacks = 230;\nwhile (money > snacks) {\n  money = money - snacks;\n  console.log(money);\n}","let money = 600;\nlet month = 0;\nwhile (money < 4000) {\n  month ++;\n  money += 800;\n}\nconsole.log(\"Save for \" + month + \" months\");"],
+        42: ["let","let num;\nnum = 3;\nnum = 5;\nconsole.log(num);","a != 100","while ( condition ) {\n  process;\n}","let money = 1000;\nconst snacks = 230;\nwhile (money > snacks) {\n  money = money - snacks;\n  console.log(money);\n}","let money = 600;\nlet month = 0;\nwhile (money < 4000) {\n  month ++;\n  money += 800;\n}\nconsole.log(\"Save for \" + month + \" months\");"]
+    };
+    
+    // --------------------------------------------------------------
+    // 2. State Management
+    // --------------------------------------------------------------
+    let visitedLevels = new Set();
+    let currentLevel = 1;
+    
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    const saveStateDebounced = debounce(() => {
+        localStorage.setItem('learn_visited', JSON.stringify([...visitedLevels]));
+        localStorage.setItem('learn_current', currentLevel);
+    }, 500);
+
+    function loadState() {
+        const storedVisited = localStorage.getItem('learn_visited');
+        if (storedVisited) visitedLevels = new Set(JSON.parse(storedVisited));
+        const storedCurrent = localStorage.getItem('learn_current');
+        if (storedCurrent && !isNaN(parseInt(storedCurrent))) currentLevel = parseInt(storedCurrent);
+        else currentLevel = 1;
+        if (!visitedLevels.has(currentLevel)) visitedLevels.add(currentLevel);
+        updateProgressUI();
+    }
+    
+    function updateProgressUI() {
+        const statsSpan = document.getElementById('progressStats');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const total = 42;
+        const count = visitedLevels.size;
+        if (statsSpan) statsSpan.innerText = `التقدم: ${count} / ${total}`;
+        if (progressBarFill) progressBarFill.style.width = `${(count / total) * 100}%`;
+    }
+    
+    function updateCardsColors() {
+        for (let lvl = 1; lvl <= 42; lvl++) {
+            const card = document.getElementById(`level-card-${lvl}`);
+            if (!card) continue;
+            const isVisited = visitedLevels.has(lvl);
+            const isCurrent = (lvl === currentLevel);
+            card.classList.remove('state-red', 'state-yellow', 'state-green');
+            if (isCurrent) card.classList.add('state-yellow');
+            else if (isVisited) card.classList.add('state-green');
+            else card.classList.add('state-red');
+        }
+    }
+    
+    function renderAllLevels() {
+        const container = document.getElementById('levelsRender');
+        if (!container) return;
+        container.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        for (let lvl = 1; lvl <= 42; lvl++) {
+            const answersCount = levelsData[lvl] ? levelsData[lvl].length : 0;
+            const card = document.createElement('div');
+            card.id = `level-card-${lvl}`;
+            card.className = 'level-card';
+            card.dataset.level = lvl;
+            card.innerHTML = `
+                <div class="level-header">
+                    <div class="level-title">
+                        <span class="level-num">المستوى ${lvl}</span>
+                        <span class="level-badge">📋 ${answersCount} إجابة</span>
+                    </div>
+                    <div class="level-arrow">▼</div>
+                </div>
+                <div class="answers-wrapper">
+                    <div class="answers-inner">
+                        <div class="answers-container" data-loaded="false"></div>
+                    </div>
+                </div>
+            `;
+            fragment.appendChild(card);
+        }
+        container.appendChild(fragment);
+        updateCardsColors();
+    }
+    
+    // Helper: ترميز HTML آمن للعرض
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function loadAnswersIntoDOM(levelNum, container) {
+        if (container.dataset.loaded === "true") return;
+        const answers = levelsData[levelNum] || [];
+        const fragment = document.createDocumentFragment();
+        if (answers.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'answer-item';
+            emptyMsg.innerHTML = `<div class="answer-code" style="color:var(--text-sub)">✨ لا توجد إجابات مسجلة لهذا المستوى</div>`;
+            fragment.appendChild(emptyMsg);
+        } else {
+            answers.forEach(ans => {
+                const item = document.createElement('div');
+                item.className = 'answer-item';
+                // عرض النص بعد ترميزه HTML
+                const escapedAns = escapeHtml(ans);
+                item.innerHTML = `
+                    <div class="answer-code">${escapedAns}</div>
+                    <button class="copy-btn" data-raw-answer="${escapeHtml(ans)}">📋 نسخ</button>
+                `;
+                // تخزين النص الأصلي (غير المرمّز بشكل مزدوج) في السمة data-raw-answer
+                // لكننا قمنا بتخزينه بعد escapeHtml? لا، يجب تخزين النص الأصلي حرفياً.
+                // سنقوم بتعيين السمة بعد الإضافة باستخدام setAttribute لتجنب الترميز.
+                const btn = item.querySelector('.copy-btn');
+                btn.setAttribute('data-raw-answer', ans);  // النص الأصلي غير معدل
+                fragment.appendChild(item);
+            });
+        }
+        container.appendChild(fragment);
+        container.dataset.loaded = "true";
+    }
+
+    function toggleLevel(levelNum, cardElement) {
+        const isOpen = cardElement.classList.contains('is-open');
+        const answersContainer = cardElement.querySelector('.answers-container');
+        if (!visitedLevels.has(levelNum)) visitedLevels.add(levelNum);
+        currentLevel = levelNum;
+        saveStateDebounced();
+        updateProgressUI();
+        updateCardsColors();
+        if (!isOpen) {
+            loadAnswersIntoDOM(levelNum, answersContainer);
+            cardElement.classList.add('is-open');
+            setTimeout(() => cardElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+        } else {
+            cardElement.classList.remove('is-open');
+        }
+    }
+
+    // دالة نسخ محسنة: تستخدم النص الأصلي المخزن في data-raw-answer
+    async function copyToClipboard(rawText) {
+        try {
+            await navigator.clipboard.writeText(rawText);
+            showToast();
+        } catch (err) {
+            // Fallback باستخدام textarea
+            const textarea = document.createElement('textarea');
+            textarea.value = rawText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (e) {
+                console.error('فشل النسخ:', e);
+                alert('تعذر نسخ النص، يرجى المحاولة يدوياً');
+            }
+            document.body.removeChild(textarea);
+        }
+    }
+
+    let toastTimeout;
+    function showToast() {
+        const toast = document.getElementById('toastMsg');
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // Event delegation
+    document.getElementById('levelsRender').addEventListener('click', (e) => {
+        const header = e.target.closest('.level-header');
+        if (header) {
+            const card = header.closest('.level-card');
+            const lvl = parseInt(card.dataset.level, 10);
+            toggleLevel(lvl, card);
+            return;
+        }
+        const copyBtn = e.target.closest('.copy-btn');
+        if (copyBtn) {
+            const originalText = copyBtn.getAttribute('data-raw-answer');
+            if (originalText) copyToClipboard(originalText);
+        }
+    });
+
+    document.getElementById('resetProgressBtn').addEventListener('click', () => {
+        if(confirm('هل أنت متأكد من إعادة ضبط كل التقدم؟')) {
+            visitedLevels.clear();
+            currentLevel = 1;
+            visitedLevels.add(1);
+            saveStateDebounced();
+            renderAllLevels(); 
+            updateProgressUI();
+            const toast = document.getElementById('toastMsg');
+            toast.innerText = '🔄 تم تصفير التقدم بنجاح';
+            showToast();
+            setTimeout(() => toast.innerText = 'تم النسخ بنجاح!', 2500);
+        }
+    });
+
+    loadState();
+    renderAllLevels();
+
+    // ---------------------- Welcome Popup (يختفي بعد 5 ثوانٍ أو عند النقر خارج البطاقة) ----------------------
+    function createWelcomePopup() {
+        if (document.getElementById('welcomePopupOverlay')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'welcomePopupOverlay';
+        overlay.className = 'welcome-overlay';
+        overlay.innerHTML = `
+            <div class="popup-card">
+                <div class="avatar-glow">
+                    <img src="https://i.postimg.cc/fLbNQTqC/Youssef.jpg" alt="Youssef Salim" loading="eager">
+                </div>
+                <h2>𝒀𝒐𝒖𝒔𝒔𝒆𝒇 𝒔𝒂𝒍𝒊𝒎</h2>
+                <div class="popup-phone">📞 01271161168</div>
+                <div class="popup-desc">✨ Welcome To ✨<br> Qureo Answers</div>
+                <div class="close-hint">( اضغط في أي مكان للإغلاق )</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        let isClosing = false;
+        let autoTimeout = setTimeout(() => closePopup(overlay, () => isClosing = true), 5000);
+        
+        const closePopup = (overlayEl, setFlag) => {
+            if (isClosing) return;
+            setFlag();
+            clearTimeout(autoTimeout);
+            overlayEl.classList.add('fade-out');
+            overlayEl.addEventListener('transitionend', () => overlayEl.remove(), { once: true });
+        };
+        
+        const handleOutsideClick = (e) => {
+            if (e.target === overlay) {
+                closePopup(overlay, () => isClosing = true);
+            }
+        };
+        overlay.addEventListener('click', handleOutsideClick);
+        // لتجنب تسريب الذاكرة
+        overlay.addEventListener('transitionend', () => overlay.removeEventListener('click', handleOutsideClick));
+    }
+    
+    window.addEventListener('load', () => setTimeout(createWelcomePopup, 200));
+</script>
+</body>
+</html>
