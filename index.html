@@ -11,7 +11,6 @@
     </script>
     <!-- End Google Analytics -->
 
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Qureo-By Youssef</title>
@@ -235,21 +234,46 @@
             padding-top: 1.5rem;
         }
 
+        /* الإجابة العادية */
         .answer-item {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 1rem;
-            padding: 1rem;
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 0;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: var(--transition-smooth);
+            overflow: hidden;
+        }
+        
+        .answer-item:hover {
+            border-color: rgba(255, 180, 100, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .answer-main {
+            flex: 0 0 94%;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            transition: var(--transition-smooth);
+            padding: 1rem;
+            flex-wrap: wrap;
         }
 
-        .answer-item:hover {
-            border-color: rgba(255, 180, 100, 0.3);
-            background: rgba(0, 0, 0, 0.5);
+        .answer-number {
+            flex: 0 0 6%;
+            background: #2a2e3f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #cdd9ff;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            font-family: monospace;
+            text-align: center;
         }
 
         .answer-code {
@@ -289,6 +313,55 @@
         }
 
         .copy-btn:active { transform: scale(0.92); }
+
+        /* أنماط الأقسام الخاصة (الفصل 11 و18 و19) - كل جزء أصبح له رقمه الخاص */
+        .answer-item-split {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: var(--transition-smooth);
+        }
+        
+        .answer-item-split:hover {
+            border-color: rgba(255, 180, 100, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .split-part {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 0.8rem;
+            display: flex;
+            align-items: stretch;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .split-part .answer-number {
+            flex: 0 0 6%;
+            background: #2a2e3f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #cdd9ff;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            font-family: monospace;
+        }
+        
+        .split-part .answer-main {
+            flex: 0 0 94%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            padding: 0.75rem;
+            flex-wrap: wrap;
+        }
 
         .toast-msg {
             position: fixed;
@@ -428,7 +501,13 @@
             .popup-card { padding: 1.5rem; }
             .avatar-glow { width: 110px; height: 110px; }
             .popup-card h2 { font-size: 1.5rem; }
-            .answer-item { flex-direction: column; align-items: stretch; }
+            .answer-item { flex-direction: column; }
+            .answer-main { flex: auto; width: 100%; }
+            .answer-number { flex: auto; width: 100%; padding: 0.5rem; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); }
+            .answer-item-split { grid-template-columns: 1fr; gap: 0.8rem; }
+            .split-part { flex-direction: column; }
+            .split-part .answer-number { flex: auto; width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); }
+            .split-part .answer-main { flex: auto; width: 100%; }
             .copy-btn { align-self: flex-end; width: 100%; justify-content: center; }
         }
 
@@ -602,7 +681,6 @@
         updateCardsColors();
     }
     
-    // Helper: ترميز HTML آمن للعرض
     function escapeHtml(str) {
         return str.replace(/[&<>]/g, function(m) {
             if (m === '&') return '&amp;';
@@ -612,36 +690,90 @@
         });
     }
     
+    // ------------------------- loadAnswersIntoDOM المعدلة -------------------------
     function loadAnswersIntoDOM(levelNum, container) {
         if (container.dataset.loaded === "true") return;
         const answers = levelsData[levelNum] || [];
         const fragment = document.createDocumentFragment();
+        
         if (answers.length === 0) {
             const emptyMsg = document.createElement('div');
             emptyMsg.className = 'answer-item';
-            emptyMsg.innerHTML = `<div class="answer-code" style="color:var(--text-sub)">✨ لا توجد إجابات مسجلة لهذا المستوى</div>`;
+            emptyMsg.innerHTML = `<div class="answer-number">—</div><div class="answer-main"><div class="answer-code" style="color:var(--text-sub)">✨ لا توجد إجابات مسجلة لهذا المستوى</div></div>`;
             fragment.appendChild(emptyMsg);
         } else {
-            answers.forEach(ans => {
-                const item = document.createElement('div');
-                item.className = 'answer-item';
-                // عرض النص بعد ترميزه HTML
-                const escapedAns = escapeHtml(ans);
-                item.innerHTML = `
-                    <div class="answer-code">${escapedAns}</div>
-                    <button class="copy-btn" data-raw-answer="${escapeHtml(ans)}">📋 نسخ</button>
-                `;
-                // تخزين النص الأصلي (غير المرمّز بشكل مزدوج) في السمة data-raw-answer
-                // لكننا قمنا بتخزينه بعد escapeHtml? لا، يجب تخزين النص الأصلي حرفياً.
-                // سنقوم بتعيين السمة بعد الإضافة باستخدام setAttribute لتجنب الترميز.
-                const btn = item.querySelector('.copy-btn');
-                btn.setAttribute('data-raw-answer', ans);  // النص الأصلي غير معدل
-                fragment.appendChild(item);
+            answers.forEach((ans, idx) => {
+                const isSpecialSplit = (levelNum === 11 || levelNum === 18 || levelNum === 19) && idx === answers.length - 1;
+                const answerNumber = idx + 1;
+                
+                if (isSpecialSplit) {
+                    // الإجابة المقسومة: نضيف لكل جزء رقم الإجابة الخاص به
+                    const splitContainer = document.createElement('div');
+                    splitContainer.className = 'answer-item-split';
+                    
+                    let leftText = '', rightText = '';
+                    if (levelNum === 11) {
+                        leftText = "for";
+                        rightText = "let i=0 ; i < 3 ; i++";
+                    } else if (levelNum === 18) {
+                        leftText = "<!--";
+                        rightText = "-->";
+                    } else if (levelNum === 19) {
+                        leftText = "/*";
+                        rightText = "*/";
+                    }
+                    
+                    // إنشاء الجزء الأيمن (الموضع الأيمن بصرياً) -> في RTL نضع المحتوى الأيمن أولاً
+                    const rightPart = document.createElement('div');
+                    rightPart.className = 'split-part';
+                    rightPart.innerHTML = `
+                        <div class="answer-number">${answerNumber}</div>
+                        <div class="answer-main">
+                            <div class="answer-code">${escapeHtml(rightText)}</div>
+                            <button class="copy-btn">📋 نسخ</button>
+                        </div>
+                    `;
+                    const btnRight = rightPart.querySelector('.copy-btn');
+                    btnRight.setAttribute('data-raw-answer', rightText);
+                    
+                    // الجزء الأيسر
+                    const leftPart = document.createElement('div');
+                    leftPart.className = 'split-part';
+                    leftPart.innerHTML = `
+                        <div class="answer-number">${answerNumber}</div>
+                        <div class="answer-main">
+                            <div class="answer-code">${escapeHtml(leftText)}</div>
+                            <button class="copy-btn">📋 نسخ</button>
+                        </div>
+                    `;
+                    const btnLeft = leftPart.querySelector('.copy-btn');
+                    btnLeft.setAttribute('data-raw-answer', leftText);
+                    
+                    splitContainer.appendChild(rightPart);
+                    splitContainer.appendChild(leftPart);
+                    fragment.appendChild(splitContainer);
+                } else {
+                    // الإجابة العادية
+                    const item = document.createElement('div');
+                    item.className = 'answer-item';
+                    const escapedAns = escapeHtml(ans);
+                    item.innerHTML = `
+                        <div class="answer-number">${answerNumber}</div>
+                        <div class="answer-main">
+                            <div class="answer-code">${escapedAns}</div>
+                            <button class="copy-btn">📋 نسخ</button>
+                        </div>
+                    `;
+                    const btn = item.querySelector('.copy-btn');
+                    btn.setAttribute('data-raw-answer', ans);
+                    fragment.appendChild(item);
+                }
             });
         }
         container.appendChild(fragment);
         container.dataset.loaded = "true";
     }
+    // -------------------------------------------------------------------------
 
     function toggleLevel(levelNum, cardElement) {
         const isOpen = cardElement.classList.contains('is-open');
@@ -660,13 +792,11 @@
         }
     }
 
-    // دالة نسخ محسنة: تستخدم النص الأصلي المخزن في data-raw-answer
     async function copyToClipboard(rawText) {
         try {
             await navigator.clipboard.writeText(rawText);
             showToast();
         } catch (err) {
-            // Fallback باستخدام textarea
             const textarea = document.createElement('textarea');
             textarea.value = rawText;
             document.body.appendChild(textarea);
@@ -724,7 +854,7 @@
     loadState();
     renderAllLevels();
 
-    // ---------------------- Welcome Popup (يختفي بعد 5 ثوانٍ أو عند النقر خارج البطاقة) ----------------------
+    // Welcome Popup
     function createWelcomePopup() {
         if (document.getElementById('welcomePopupOverlay')) return;
         const overlay = document.createElement('div');
@@ -759,7 +889,6 @@
             }
         };
         overlay.addEventListener('click', handleOutsideClick);
-        // لتجنب تسريب الذاكرة
         overlay.addEventListener('transitionend', () => overlay.removeEventListener('click', handleOutsideClick));
     }
     
